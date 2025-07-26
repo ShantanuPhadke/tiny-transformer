@@ -16,6 +16,7 @@ class TrainValidationSplitter:
 
 class Chunker:
     def __init__(self, data, batchsize, blocksize):
+        self.device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
         self.data = data
         self.batchsize = batchsize # Number of sequences processed in parallel
         self.blocksize = blocksize # Length of each block
@@ -27,6 +28,7 @@ class Chunker:
         batchx = torch.stack([self.data[i:i + self.blocksize] for i in randx])
         # y values of each batch (next character in the sequence)
         batchy = torch.stack([self.data[i + 1:i + self.blocksize + 1] for i in randx])
+        batchx, batchy = batchx.to(self.device), batchy.to(self.device)  # Move to the appropriate device
         return batchx, batchy
 
     def print_batch_info(self, batchx, batchy):
