@@ -1,5 +1,6 @@
 from data_processing.FileProcessor import FileProcessor
 from data_processing.Vocabulary import VocabularyManager
+from data_processing.data_management import TrainValidationSplitter, Chunker
 
 from tokenization.CharacterTokenizer import CharacterTokenizer
 
@@ -14,9 +15,16 @@ vocab_manager.generate_vocabulary(shakespeare_content)
 print(vocab_manager)
 
 shakespeare_character_tokenizer = CharacterTokenizer(vocab_manager)
-shakespeare_character_sample_encoding = shakespeare_character_tokenizer.encode(shakespeare_content[:100])
+shakespeare_character_encoding = shakespeare_character_tokenizer.encode(shakespeare_content)
+
+train_val_splitter = TrainValidationSplitter(shakespeare_character_encoding, train_size=0.9)
+train_data, validation_data = train_val_splitter.split()
+
+data_chunker = Chunker(train_data, batchsize=4, blocksize=8)
+random_batch = data_chunker.get_batch()
+data_chunker.print_batch_info(*random_batch)
 
 
-shakespeare_character_sample_decoding = shakespeare_character_tokenizer.decode(shakespeare_character_sample_encoding)
+
 
 
